@@ -94,8 +94,8 @@ def main(argv):
             print (str(err))
 
         return post_success
-    callerId = "<booli caller id>"
-    privateKey = "<booli_private_key>"
+    callerId = "<YOUR_CALLER_ID>"
+    privateKey = "<YOUR_PRIVATE_KEY>"
     timestamp = str(int(time.time()))
     unique = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(16))
     hashstr = sha1((callerId + timestamp + privateKey + unique).encode('utf-8')).hexdigest()
