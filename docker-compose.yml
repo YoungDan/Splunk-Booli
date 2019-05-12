@@ -1,4 +1,4 @@
-version: "3.6"
+version: '3.6'
 
 services:
   so1:
@@ -8,6 +8,14 @@ services:
       - SPLUNK_START_ARGS=--accept-license
       - SPLUNK_HEC_TOKEN=b72865fa-31ec-4ce0-a7fb-518bdef55c2e
       - SPLUNK_PASSWORD
+    volumes:
+      - ./booli:/opt/splunk/etc/apps/booli/
+      # source: ./opt/splunk/etc/apps/search
+      #  target: ./booli2
+      #   # - type: 'bind'
+        #   source: ./booli
+        #   target: ./opt/splunk/etc/apps/booli
     ports:
       - "8000:8000"
       - "8088:8088"
+

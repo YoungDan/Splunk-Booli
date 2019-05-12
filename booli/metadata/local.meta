@@ -1,0 +1,21 @@
+[app/ui]
+version = 7.2.5.1
+modtime = 1557691862.430308000
+
+[app/launcher]
+version = 7.2.5.1
+modtime = 1557691862.444113000
+
+[nav/default]
+version = 7.2.5.1
+modtime = 1557693522.621486000
+
+[props/sold]
+owner = admin
+version = 7.2.5.1
+modtime = 1557694052.090865000
+
+[views/home]
+owner = admin
+version = 7.2.5.1
+modtime = 1557701142.285643000

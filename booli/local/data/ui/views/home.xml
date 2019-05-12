@@ -1,0 +1,64 @@
+<form theme="dark">
+  <label>Home</label>
+  <fieldset submitButton="false">
+    <input type="multiselect" token="object" searchWhenChanged="true">
+      <label>Type</label>
+      <choice value="*">All</choice>
+      <fieldForLabel>objectType</fieldForLabel>
+      <fieldForValue>objectType</fieldForValue>
+      <search>
+        <query>index=main | stats count by objectType</query>
+        <earliest>0</earliest>
+        <latest></latest>
+      </search>
+      <prefix>( </prefix>
+      <suffix> )</suffix>
+      <valuePrefix>objectType="</valuePrefix>
+      <delimiter> OR </delimiter>
+      <valueSuffix>"</valueSuffix>
+    </input>
+    <input type="dropdown" token="city" searchWhenChanged="true">
+      <label>City</label>
+      <choice value="*">All</choice>
+      <fieldForLabel>city</fieldForLabel>
+      <fieldForValue>city</fieldForValue>
+      <search>
+        <query>index=main | stats count by "location.region.municipalityName" | rename "location.region.municipalityName" as city</query>
+        <earliest>0</earliest>
+        <latest></latest>
+      </search>
+      <prefix>"location.region.municipalityName"=</prefix>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="multiselect" token="area" searchWhenChanged="true">
+      <label>Area</label>
+      <choice value="*">All</choice>
+      <fieldForLabel>"location.namedAreas{}"</fieldForLabel>
+      <fieldForValue>location.namedAreas{}</fieldForValue>
+      <search>
+        <query>index=main | stats count by "location.namedAreas{}"</query>
+        <earliest>0</earliest>
+        <latest></latest>
+      </search>
+      <prefix>( </prefix>
+      <suffix> )</suffix>
+      <valuePrefix>"location.namedAreas{}"="</valuePrefix>
+      <delimiter> OR </delimiter>
+      <valueSuffix>"</valueSuffix>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <table>
+        <title>Listings</title>
+        <search>
+          <query>index=main sourcetype=listings $object$ $area$ $city$ | table "location.address.streetAddress" "location.namedAreas{}"</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</form>
