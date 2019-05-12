@@ -1,5 +1,8 @@
+#!/usr/bin/python
+
 import argparse
 import getopt
+import requests
 import json
 import random
 import string
@@ -7,7 +10,6 @@ import sys
 import time
 from hashlib import sha1
 
-import requests
 
 """
 Make a sample call to the Booli API asking for all listings in 'Nacka' in JSON format, 
@@ -17,7 +19,7 @@ using 'YOUR_CALLER_ID' and 'YOUR_PRIVATE_KEY' for authentication
 
 
 
-def main(argv):
+def main(arg):
     def get_booli_data(callerId, timestamp, unique, hashstr, limit, offset, query, type):
         headers = {'Accept': 'application/vnd.booli-v2+json'}
         url = "http://api.booli.se/" + type + "?q=" + query + "&limit=" + str(limit) + "&offset=" + str(
@@ -27,11 +29,12 @@ def main(argv):
 
         if (r.status_code != 200):
             print("fail")
+            return json.loads("")
         global result
         result = json.loads(r.text)
         return result
 
-    def send_event_to_splunk(splunk_host, splunk_auth_token, listing):
+    def send_event_to_splunk(splunk_host, splunk_auth_token, listing, source):
         try:
             # Integer value representing epoch time format
             listTime = listing.get("published")
@@ -41,18 +44,15 @@ def main(argv):
             # String representing the host name or IP
             host_id = "localhost"
 
-            # String representing the Splunk sourcetype, see:
-            # docs.splunk.com/Documentation/Splunk/6.3.2/Data/Listofpretrainedsourcetypes
-            source_type = "_json"
-
             # Create request URL
             request_url = "https://%s:8088/services/collector" % splunk_host
 
             post_data = {
                 "time": event_time,
                 "host": host_id,
-                "sourcetype": source_type,
-                "event": listing
+                "sourcetype": source,
+                "event": listing,
+                "source": "booli_data"
             }
 
             # Encode data in JSON utf-8 format
@@ -109,15 +109,15 @@ def main(argv):
         result = get_booli_data(callerId, timestamp, unique, hashstr, limit, offset, args.query, args.type)
         offset = result.get("offset")
         offset += result.get("count")
-        listings = result.get("sold")
+        listings = result.get(args.type)
         for listing in listings:
-            success = send_event_to_splunk(splunk_host, splunk_auth_token, listing)
+            success = send_event_to_splunk(splunk_host, splunk_auth_token, listing, args.type)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Set Booli Query and Type of Object (sold or listing')
-    parser.add_argument('-q', '--query', help='City, Area to query Booli API, default = stockholm', default="stockholm")
-    parser.add_argument('-t', '--type', help='Type of the Booli data to retrive, Sold or Listed Objects', default="sold")
+    parser.add_argument('-q', '--query', help='City, Area to query Booli API, default = stockholm', type=str, default="stockholm")
+    parser.add_argument('-t', '--type', help='Type of the Booli data to retrive, Sold or Listed Objects',type=str , default="sold")
     args = parser.parse_args()
     main(args)
 
