@@ -1,0 +1,23 @@
+name: Deslicer Reject Plan
+on:
+  workflow_dispatch:
+    inputs:
+      plan_id:
+        description: Deslicer plan id
+        required: true
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  reject:
+    runs-on: ubuntu-latest
+    env:
+      DESLICER_API_URL: ${{ vars.DESLICER_API_URL || 'https://api.deslicer.ai' }}
+    steps:
+      # tag v4 = 34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      # tag v1 = 7db42d46d51a46e0d040e77bcf5ce3649fb1705d
+      - uses: deslicer/change-action@7db42d46d51a46e0d040e77bcf5ce3649fb1705d
+        with:
+          command: reject
+          command-args: --plan-id ${{ inputs.plan_id }}
