@@ -1,0 +1,33 @@
+name: Deslicer Plan
+on:
+  pull_request:
+    branches: [main, master, development, staging]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Deslicer environment stem
+        required: false
+        default: production
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    env:
+      DESLICER_API_URL: ${{ vars.DESLICER_API_URL || 'https://api.deslicer.ai' }}
+      DESLICER_ENVIRONMENT: ${{ inputs.environment || 'production' }}
+    steps:
+      # tag v4 = 34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      # tag v1 = 7db42d46d51a46e0d040e77bcf5ce3649fb1705d
+      - id: plan
+        uses: deslicer/change-action@7db42d46d51a46e0d040e77bcf5ce3649fb1705d
+        with:
+          command: plan
+          command-args: --environment ${{ env.DESLICER_ENVIRONMENT }}
+      - name: Verify compiled plan
+        uses: deslicer/change-action@7db42d46d51a46e0d040e77bcf5ce3649fb1705d
+        with:
+          command: verify
+          command-args: --plan-id ${{ steps.plan.outputs.plan_id }} --environment ${{ env.DESLICER_ENVIRONMENT }}
